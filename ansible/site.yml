@@ -1,0 +1,27 @@
+# ---
+# - name: Install Docker on all hosts
+#   import_playbook: playbooks/docker/docker.yml
+  
+# - name: Setup Nginx via Docker
+#   import_playbook: playbooks/nginx/nginx.yml
+  
+# - name: Setup Monitoring via Docker
+#   import_playbook: playbooks/monitoring/monitoring.yml
+
+# - name: Setup Prometheus via Docker
+#   import_playbook: playbooks/prometheus/prometheus.yml
+
+
+# - name: Setup Elasticsearch via Docker
+#   import_playbook: playbooks/elasticsearch/elasticsearch.yml
+
+# - name: Setup Filebeat via Docker
+#   import_playbook: playbooks/filebeat/filebeat.yml
+
+
+# - name: Setup Kibana via Docker
+#   import_playbook: playbooks/kibana/kibana.yml
+
+  
+- name: Setup Grafana via Docker
+  import_playbook: playbooks/grafana/grafana.yml

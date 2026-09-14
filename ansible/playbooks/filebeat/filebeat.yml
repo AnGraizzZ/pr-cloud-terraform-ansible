@@ -1,0 +1,38 @@
+---
+- name: Install Filebeat on Webservers
+  hosts: webservers
+  become: true
+  tasks:
+    - name: Create Filebeat config directory
+      file:
+        path: /opt/filebeat
+        state: directory
+        mode: '0755'
+
+    - name: Deploy Filebeat configuration
+      template:
+        src: ../templates/filebeat.yml.j2
+        dest: /opt/filebeat/filebeat.yml
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Wait for Docker socket to be ready
+      wait_for:
+        path: /var/run/docker.sock
+        timeout: 60
+
+    - name: Run Filebeat container
+      community.docker.docker_container:
+        name: filebeat
+        image: docker.elastic.co/beats/filebeat:8.15.0
+        state: started
+        restart_policy: always
+        user: root
+        volumes:
+          - /opt/filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+          - /var/log/nginx:/var/log/nginx:ro
+          - filebeat_data:/usr/share/filebeat/data
+        network_mode: host
+        env:
+          FILEBEAT_CONFIG: "/usr/share/filebeat/filebeat.yml"

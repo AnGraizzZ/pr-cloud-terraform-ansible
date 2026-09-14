@@ -1,0 +1,51 @@
+---
+- hosts: webservers
+  become: true
+  tasks:
+    # Node Exporter
+    - name: Run Node Exporter container
+      community.docker.docker_container:
+        name: node-exporter
+        image: prom/node-exporter:latest
+        state: started
+        restart_policy: always
+        network_mode: host # Используем host, чтобы видеть реальные интерфейсы
+        command:
+          - '--path.procfs=/host/proc'
+          - '--path.sysfs=/host/sys'
+          - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+        volumes:
+          - /proc:/host/proc:ro
+          - /sys:/host/sys:ro
+          - /:/rootfs:ro
+
+    #  Nginx Log Exporter
+    - name: Create directory for Nginx logs
+      file:
+        path: /opt/nginx-logs
+        state: directory
+        mode: '0755'
+
+    - name: Run Nginx Log Exporter
+      community.docker.docker_container:
+        name: nginx-log-exporter
+        image: abdullahmuzlim279/nginx-log-exporter:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "8000:8000"
+        volumes:
+          - /var/log/nginx:/var/log/nginx:ro 
+        env:
+          LISTEN_PORT: "8000"
+          NAMESPACES: |
+            [{
+              "format": "$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\"",
+              "source": {
+                "files": ["/var/log/nginx/access.log"]
+              },
+              "labels": {
+                "job": "nginx_access",
+                "environment": "production"
+              }
+            }]

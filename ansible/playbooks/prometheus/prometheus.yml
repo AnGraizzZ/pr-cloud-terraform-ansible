@@ -1,0 +1,40 @@
+---
+- hosts: services_in
+  become: true
+  tasks:
+    - name: Create config directory
+      file:
+        path: /opt/prometheus
+        state: directory
+        mode: '0755'
+
+    - name: Generate target lists for Prometheus
+      set_fact:
+        node_exporter_targets: "{{ groups['webservers'] | map('regex_replace', '$', ':9100') | list }}"
+        nginx_log_targets: "{{ groups['webservers'] | map('regex_replace', '$', ':8000') | list }}"
+
+    - name: Copy prometheus.yml from template
+      template:
+        src: templates/prometheus.yml.j2
+        dest: /opt/prometheus/prometheus.yml
+        owner: root
+        group: root
+        mode: '0644'
+        
+    - name: Wait for Docker socket to be ready
+      wait_for:
+        path: /var/run/docker.sock
+        timeout: 60
+
+    - name: Run Prometheus container
+      community.docker.docker_container:
+        name: prometheus
+        image: prom/prometheus:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "9090:9090"
+        volumes:
+          - /opt/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+          - prometheus_data:/prometheus
+        network_mode: host

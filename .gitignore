@@ -1,0 +1,54 @@
+# === ЧУВСТВИТЕЛЬНЫЕ ДАННЫЕ (НИКОГДА НЕ КОММИТЬ!) ===
+*.pem
+*.key
+*.pub
+id_rsa*
+yc_key*
+vault_pass.txt
+*.credentials
+.env
+secrets.yml
+passwords.yml
+
+# === TERRAFORM ===
+.terraform/
+.terraform.lock.hcl
+*.tfstate
+*.tfstate.backup
+*.tfvars
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# === ANSIBLE ===
+.retry
+inventory/*
+!inventory/*.j2
+!inventory/group_vars/.gitkeep
+!inventory/host_vars/.gitkeep
+ansible.cfg.bak
+*.retry
+
+# === GRAFANA & MONITORING ===
+grafana/data/
+provisioning/dashboards/*.json.tmp
+*.log
+
+# === ОС И РЕДАКТОРЫ ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# === PYTHON / VENV ===
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.venv/

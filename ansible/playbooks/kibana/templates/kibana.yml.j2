@@ -1,0 +1,4 @@
+server.host: "0.0.0.0"
+server.port: 5601
+elasticsearch.hosts: ["http://{{ groups['services_in'][0] }}:9200"]
+xpack.encryptedSavedObjects.encryptionKey: "something_at_least_32_characters_long_for_kibana"

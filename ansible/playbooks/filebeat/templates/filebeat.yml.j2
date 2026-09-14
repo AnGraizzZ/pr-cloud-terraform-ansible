@@ -1,0 +1,29 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx/access.log
+    fields:
+      log_type: nginx_access
+    fields_under_root: true
+    tags: ["nginx", "webserver"]
+
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx/error.log
+    fields:
+      log_type: nginx_error
+    fields_under_root: true
+    tags: ["nginx", "webserver"]
+
+output.elasticsearch:
+  hosts: ["{{ groups['services_in'][0] }}:9200"]
+
+logging.level: info
+logging.to_files: true
+logging.files:
+  path: /var/log/filebeat
+  name: filebeat.log
+  keepfiles: 7
+  permissions: 0644

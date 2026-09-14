@@ -1,0 +1,34 @@
+---
+- hosts: webservers
+  become: true
+  tasks:
+    - name: Wait for Docker socket to be ready
+      wait_for:
+        path: /var/run/docker.sock
+        timeout: 30
+        
+    - name: Create directory for custom index page
+      file:
+        path: /opt/nginx-custom
+        state: directory
+        mode: '0755'
+
+    - name: Copy custom index.html with server IP
+      template:
+        src: ../templates/index.html
+        dest: /opt/nginx-custom/index.html
+        mode: '0644'
+
+    - name: Run Nginx container with custom page
+      community.docker.docker_container:
+        name: nginx-web
+        image: nginx:latest
+        state: started
+        restart_policy: always
+        ports:
+          - "80:80"
+        volumes:
+          - /opt/nginx-custom:/usr/share/nginx/html:ro
+          - /var/log/nginx:/var/log/nginx
+
+          

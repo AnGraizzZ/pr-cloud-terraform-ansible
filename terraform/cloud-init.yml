@@ -1,0 +1,11 @@
+# packages:
+#   - openssh-server
+#   - docker.io
+
+users:
+  - name: agz
+    groups: sudo, docker
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_authorized_keys:
+      - ${ssh_public_key}

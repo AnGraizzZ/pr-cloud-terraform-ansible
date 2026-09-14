@@ -1,0 +1,47 @@
+---
+- name: Install Elasticsearch on Prometheus Host
+  hosts: services_in
+  become: true
+  tasks:
+    - name: Create ELK config directory
+      file:
+        path: /opt/elk
+        state: directory
+        mode: '0755'
+
+    - name: Deploy Elasticsearch configuration
+      template:
+        src: ../templates/elasticsearch.yml.j2
+        dest: /opt/elk/elasticsearch.yml
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Wait for Docker socket to be ready
+      wait_for:
+        path: /var/run/docker.sock
+        timeout: 60
+
+    - name: Run Elasticsearch container
+      community.docker.docker_container:
+        name: elasticsearch
+        image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
+        state: started
+        restart_policy: always
+        ports:
+          - "9200:9200"
+          - "9300:9300"
+        volumes:
+          - /opt/elk/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro
+          - es_data:/usr/share/elasticsearch/data
+        env:
+          discovery.type: single-node
+          ES_JAVA_OPTS: "-Xms512m -Xmx512m"
+        network_mode: host
+
+    - name: Wait for Elasticsearch API to be ready
+      wait_for:
+        port: 9200
+        delay: 10
+        timeout: 120
+        msg: "Elasticsearch did not start within 120 seconds"

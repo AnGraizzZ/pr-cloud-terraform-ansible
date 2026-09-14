@@ -1,0 +1,59 @@
+---
+- name: Deploy and Configure Grafana
+  hosts: services_out
+  become: true
+  vars:
+    grafana_version: "latest"
+    grafana_admin_password: "pwd0560"
+
+  tasks:
+    - name: Create Grafana directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - /opt/grafana/config
+        - /opt/grafana/provisioning/datasources
+        - /opt/grafana/provisioning/dashboards
+
+    - name: Deploy Grafana main config
+      template:
+        src: ../templates/grafana.ini.j2
+        dest: /opt/grafana/config/grafana.ini
+        mode: '0644'
+
+    - name: Deploy Datasource provisioning
+      template:
+        src: ../templates/provisioning/datasources/connect-prometheus.yml.j2
+        dest: /opt/grafana/provisioning/datasources/prometheus.yml
+        mode: '0644'
+
+    - name: Deploy Dashboard provider config
+      template:
+        src: ../templates/provisioning/dashboards/dashboard.yml
+        dest: /opt/grafana/provisioning/dashboards/dashboard.yml
+        mode: '0644'
+
+    - name: Deploy USE Method Dashboard JSON
+      copy:
+        src: "{{ playbook_dir }}/templates/provisioning/dashboards/dashboard.json"
+        dest: /opt/grafana/provisioning/dashboards/dashboard.json
+        mode: '0644'
+
+    - name: Run Grafana container
+      community.docker.docker_container:
+        name: grafana
+        image: "grafana/grafana:{{ grafana_version }}"
+        state: started
+        restart_policy: always
+        ports:
+          - "3000:3000"
+        volumes:
+          - grafana_data:/var/lib/grafana
+          - /opt/grafana/config/grafana.ini:/etc/grafana/grafana.ini:ro
+          - /opt/grafana/provisioning:/etc/grafana/provisioning:ro
+        env:
+          GF_SECURITY_ADMIN_PASSWORD: "{{ grafana_admin_password }}"
+          GF_INSTALL_PLUGINS: "grafana-clock-panel,grafana-simple-json-datasource"
+        network_mode: host

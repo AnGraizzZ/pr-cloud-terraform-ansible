@@ -1,0 +1,52 @@
+---
+- hosts: all_services
+  become: true
+  tasks:
+    - name: Wait for apt lock to be released (retry until success)
+      command: /usr/bin/apt-get update
+      register: apt_update_result
+      ignore_errors: true
+      retries: 10
+      delay: 30
+      until: apt_update_result.rc == 0
+      
+    - name: Install prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - python3-pip
+          - python3-docker
+        state: present
+        update_cache: yes
+        
+
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Install Docker Engine
+      apt:
+        name: docker-ce
+        state: present
+        update_cache: yes
+
+    - name: Wait for Docker socket to be ready
+      wait_for:
+        path: /var/run/docker.sock
+        timeout: 30
+
+    - name: Start and enable Docker service
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
