@@ -22,7 +22,6 @@
           - python3-docker
         state: present
         update_cache: yes
-        
 
     - name: Add Docker GPG key
       apt_key:

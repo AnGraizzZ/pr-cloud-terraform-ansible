@@ -1,7 +1,3 @@
-# packages:
-#   - openssh-server
-#   - docker.io
-
 users:
   - name: agz
     groups: sudo, docker

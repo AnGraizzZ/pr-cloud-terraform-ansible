@@ -87,7 +87,7 @@ resource "yandex_compute_instance" "services_in"{
     network_interface {
     subnet_id = yandex_vpc_subnet.subnet_0_terraform_create.id
     security_group_ids = [yandex_vpc_security_group.in_sg.id]
-    nat = true
+    nat = false
     }
     metadata = {
     user-data = templatefile("cloud-init.yml", {

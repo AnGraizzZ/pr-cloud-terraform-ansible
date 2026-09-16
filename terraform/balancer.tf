@@ -17,9 +17,6 @@ resource "yandex_alb_target_group" "group_vm_target" {
 //
 resource "yandex_alb_backend_group" "vm_backend_group" {
   name = "vm-backend-group"
-
-  
-
   http_backend {
     name             = "http-backend"
     weight           = 1
@@ -42,7 +39,6 @@ resource "yandex_alb_backend_group" "vm_backend_group" {
 
 resource "yandex_alb_http_router" "vm_http_router" {
   name = "vm-http-router"
-  
 }
 
 resource "yandex_alb_virtual_host" "vm_virtual_host" {
@@ -67,14 +63,11 @@ resource "yandex_alb_virtual_host" "vm_virtual_host" {
 }
 
 
-//
-// Create a new Application Load Balancer (ALB)
-//
 resource "yandex_alb_load_balancer" "my_alb" {
   name = "my-load-balancer"
 
   network_id = yandex_vpc_network.network_terraform_create.id
-
+  security_group_ids = [yandex_vpc_security_group.alb_sg.id]
   allocation_policy {
 
     location {

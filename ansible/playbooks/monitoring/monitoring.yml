@@ -9,7 +9,7 @@
         image: prom/node-exporter:latest
         state: started
         restart_policy: always
-        network_mode: host # Используем host, чтобы видеть реальные интерфейсы
+        network_mode: host
         command:
           - '--path.procfs=/host/proc'
           - '--path.sysfs=/host/sys'

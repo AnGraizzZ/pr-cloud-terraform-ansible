@@ -1,13 +1,10 @@
-# templates/elasticsearch.yml.j2
 cluster.name: "monitoring-cluster"
 network.host: 0.0.0.0
 discovery.type: single-node
-
-# Отключаем X-Pack Security для упрощения настройки
 xpack.security.enabled: false
 xpack.security.enrollment.enabled: false
 
-# Критически важно для работы Kibana через браузер
+#для работы Kibana через браузер
 http.cors.enabled: true
 http.cors.allow-origin: "*"
 http.cors.allow-headers: Authorization,X-Requested-With,Content-Length,Content-Type
