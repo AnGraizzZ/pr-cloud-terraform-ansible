@@ -41,3 +41,56 @@ site.yml - конфигурационный файл в котором указ�
 В дирректории ansible/playbook находятся иерархия с файлами конфигураций для установки и настройки ПО на созданных виртуальных машинах. Каждая дирректория соответствует устанавливаемой программе, за исключением monitoring, от туда устанавливаются экспортеры для prometheus
 
 ansible устанавливает все необходимое ПО посредством docker контейнеров. Данный способ выбран для упрощения установки и дальнейшей эксплуатации
+
+Устанавливаемое ПО из playbook с иерархией по виртуальным машинам:
+ВМ `webservers`:
+
+- `nginx`: веб-сервер на котором автоматически создается html страница с ip адресом самой машины, для проверки работы балансировщика
+
+![alt text](img/image-1.png)
+
+![alt text](img/image-2.png)
+
+- `monitoring`: node и nginx экспортеры для prometheus
+  ![alt text](img/image-3.png)
+- `filebeat`:  ПО для выгрузки логов nginx в elasticsearch
+
+
+ВМ `services_in`:
+
+- `Elasticsearch`: сборщик логов которые отправляют вебсервера
+
+Доказательство работы: информация с порта 9200
+
+```bash
+agz@fv49knhmktdda2bklj7l:~$ curl http://10.2.0.22:9200/
+{
+  "name" : "fv4gpia8cnfhk263a8b1",
+  "cluster_name" : "monitoring-cluster",
+  "cluster_uuid" : "7y7PV4K7QNCdwkmTY7Y42A",
+  "version" : {
+    "number" : "8.15.0",
+    "build_flavor" : "default",
+    "build_type" : "docker",
+    "build_hash" : "1a77947f34deddb41af25e6f0ddb8e830159c179",
+    "build_date" : "2024-08-05T10:05:34.233336849Z",
+    "build_snapshot" : false,
+    "lucene_version" : "9.11.1",
+    "minimum_wire_compatibility_version" : "7.17.0",
+    "minimum_index_compatibility_version" : "7.0.0"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+
+- `Prometheus`: сервис сбора экспортеров для мониторинга работы серверов
+![alt text](img/image-4.png)
+
+
+
+ВМ `services_out`:
+- `grafana`: графическое представление данных из prometheus. Я настроил установку grafana с автоматическим подключением к prometheus и автоматической установкой Dashboards. Но  я не мог самостоятельно собрать Dashboards, поэтому я взял уже существующий набор. 
+![alt text](img/image-5.png)
+
+- `kibana`: графическое представление данных из Elasticsearch. Так же возникли трудности с этим инструментом, смог собрать минимальный дашборд, но не смог настроить автоматическую установку этого дашборда из ansible. Поэтому как доказательство работы прилагаю скрин
+![alt text](img/image-6.png)

@@ -21,7 +21,6 @@ resource "yandex_vpc_subnet" "subnet_1_terraform_create" {
   route_table_id = yandex_vpc_route_table.route_terraform_create.id
 }
 
-
 locals {
   subnet_ids = [
     yandex_vpc_subnet.subnet_0_terraform_create,
@@ -76,6 +75,22 @@ resource "yandex_vpc_security_group" "web_sg" {
     security_group_id  = yandex_vpc_security_group.bastion_sg.id 
   }
 
+  
+  # порты для подключения exporter
+  ingress {
+    description        = "Allow SSH from node_exporter"
+    protocol           = "TCP"
+    port               = 9100
+    security_group_id  = yandex_vpc_security_group.in_sg.id 
+  }  
+  # порты для подключения exporter
+  ingress {
+    description        = "Allow SSH from nginx_exporter"
+    protocol           = "TCP"
+    port               = 8000
+    security_group_id  = yandex_vpc_security_group.in_sg.id 
+  }
+
   # ALB обращается к бэкендам по внутренним IP из этих подсетей
   ingress {
     description    = "Allow HTTP from ALB subnets"
@@ -123,7 +138,7 @@ resource "yandex_vpc_security_group" "in_sg" {
     description      = "Allow Prometheus from internal network"
     protocol         = "TCP"
     port             = 9090
-    v4_cidr_blocks   = ["10.2.0.0/16"] 
+    v4_cidr_blocks   = ["0.0.0.0/0"] 
   }
 
   # Elasticsearch
@@ -131,6 +146,14 @@ resource "yandex_vpc_security_group" "in_sg" {
     description      = "Allow Elasticsearch from internal network"
     protocol         = "TCP"
     port             = 9200
+    v4_cidr_blocks   = ["10.2.0.0/16"]
+  }
+  
+  # Elasticsearch
+  ingress {
+    description      = "Allow Elasticsearch from internal network"
+    protocol         = "TCP"
+    port             = 9300
     v4_cidr_blocks   = ["10.2.0.0/16"]
   }
 

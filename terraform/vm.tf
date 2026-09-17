@@ -13,9 +13,9 @@ resource "yandex_compute_instance" "bastion"{
     core_fraction = 20
     memory        = 2
     }
-    scheduling_policy{
-        preemptible = true
-    }
+    # scheduling_policy{
+    #     preemptible = true
+    # }
     network_interface {
     subnet_id = yandex_vpc_subnet.subnet_0_terraform_create.id
     security_group_ids = [yandex_vpc_security_group.bastion_sg.id]

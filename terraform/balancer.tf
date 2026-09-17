@@ -68,6 +68,12 @@ resource "yandex_alb_load_balancer" "my_alb" {
 
   network_id = yandex_vpc_network.network_terraform_create.id
   security_group_ids = [yandex_vpc_security_group.alb_sg.id]
+
+  # ЗАПРЕТ НА УДАЛЕНИЕ
+  lifecycle {
+    prevent_destroy = true
+  }
+
   allocation_policy {
 
     location {
@@ -96,4 +102,13 @@ resource "yandex_alb_load_balancer" "my_alb" {
       }
     }
   }
+}
+
+resource "local_file" "balancer_file" {
+    content = <<-EOF
+    [balancer]
+    ${yandex_alb_load_balancer.my_alb.listener[0].endpoint[0].address[0].external_ipv4_address[0].address}
+
+   EOF
+    filename             = "../balancer.txt"
 }
