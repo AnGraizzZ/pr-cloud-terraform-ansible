@@ -2,11 +2,13 @@
 
 1. Уберите опубликованные пароли.
 Сейчас в cloud-init.yml находится пароль пользователя agz, а в grafana.yml — пароль администратора Grafana.
-![alt text](img/image.png)
+![alt text](img_corr/image.png)
 
 При этом Grafana доступна через публичный IP, поэтому пароль необходимо сменить и убрать из репозитория. Чувствительные значения лучше вынести, например, в Ansible Vault.
-![alt text](img/image-1.png)
-![alt text](img/image-2.png)
+
+![alt text](img_corr/image-1.png)
+![alt text](img_corr/image-2.png)
+
 Для пользователя, который подключается по SSH-ключу, пароль в cloud-init вообще можно не задавать.
 
 Дополните Security Group для Application Load Balancer.
@@ -21,7 +23,7 @@ ingress {
   predefined_target = "loadbalancer_healthchecks"
 }
 ```
-![alt text](img/image-3.png)
+![alt text](img_corr/image-3.png)
 
 Уберите prevent_destroy = true у ALB.
 Сейчас у вас есть stop.sh, который выполняет:
@@ -40,7 +42,7 @@ lifecycle {
 
 Для учебного проекта этот параметр лучше убрать.
 
-![alt text](img/image-4.png)
+![alt text](img_corr/image-4.png)
 
 Исправьте пути к локальным ключам Terraform.
 Сейчас используются:
@@ -59,7 +61,7 @@ file(pathexpand("~/.ssh/yc_key.pub"))
 
 Ещё лучше — вынести эти значения в переменные, чтобы проект не был привязан к конкретным именам файлов на вашей машине.
 
-![alt text](img/image-5.png)
+![alt text](img_corr/image-5.png)
 
 Добавьте зависимости Ansible.
 Playbook’и используют модули из community.docker, поэтому добавьте:
@@ -78,8 +80,8 @@ collections:
 ```
 ansible-galaxy collection install -r ansible/requirements.yml
 ```
-![alt text](img/image-6.png)
-![alt text](img/image-7.png)
+![alt text](img_corr/image-6.png)
+![alt text](img_corr/image-7.png)
 
 Уберите из Git автоматически генерируемые файлы.
 Сейчас ansible/hosts.ini и balancer.txt содержат IP текущего стенда, хотя они формируются автоматически.
@@ -92,7 +94,7 @@ ansible/hosts.ini
 balancer.txt
 ```
 
-![alt text](img/image-8.png)
+![alt text](img_corr/image-8.png)
 
 и удалите уже отслеживаемые файлы:
 
