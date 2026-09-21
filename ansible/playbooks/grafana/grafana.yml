@@ -2,10 +2,8 @@
 - name: Deploy and Configure Grafana
   hosts: services_out
   become: true
-  vars:
-    grafana_version: "latest"
-    grafana_admin_password: "pwd0560"
-
+  vars_files:
+    - ../../vault.yml 
   tasks:
     - name: Create Grafana directories
       file:
@@ -44,7 +42,7 @@
     - name: Run Grafana container
       community.docker.docker_container:
         name: grafana
-        image: "grafana/grafana:{{ grafana_version }}"
+        image: "grafana/grafana:13.0"
         state: started
         restart_policy: always
         ports:

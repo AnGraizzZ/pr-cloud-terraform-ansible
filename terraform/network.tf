@@ -208,6 +208,12 @@ resource "yandex_vpc_security_group" "alb_sg" {
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    description       = "ALB healthchecks"
+    protocol          = "TCP"
+    port              = 30080
+    predefined_target = "loadbalancer_healthchecks"
+  }
 
   egress {
     description        = "Allow HTTP to web backends"

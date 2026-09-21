@@ -9,6 +9,8 @@ vault_pass.txt
 .env
 secrets.yml
 passwords.yml
+ansible/hosts.ini
+balancer.txt
 
 # === TERRAFORM ===
 .terraform/

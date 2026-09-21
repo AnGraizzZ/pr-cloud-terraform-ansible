@@ -22,11 +22,11 @@ resource "yandex_compute_instance" "bastion"{
     nat = true
     }
     # metadata = {
-    #     ssh-keys = "agz:${file("~/.ssh/yc_key.pub")}"
+    #     ssh-keys = "agz:${file(var.ssh_path_pub)}"
     # }
     metadata = {
     user-data = templatefile("cloud-init.yml", {
-      ssh_public_key = file("~/.ssh/yc_key.pub")
+      ssh_public_key = file(var.ssh_path_pub)
     serial-port-enable  = 1
     })
   }
@@ -58,7 +58,7 @@ resource "yandex_compute_instance" "webserver"{
     }
     metadata = {
     user-data = templatefile("cloud-init.yml", {
-      ssh_public_key = file("~/.ssh/yc_key.pub")
+      ssh_public_key = file(var.ssh_path_pub)
     serial-port-enable  = 1
     })
   }
@@ -91,7 +91,7 @@ resource "yandex_compute_instance" "services_in"{
     }
     metadata = {
     user-data = templatefile("cloud-init.yml", {
-      ssh_public_key = file("~/.ssh/yc_key.pub")
+      ssh_public_key = file(var.ssh_path_pub)
     serial-port-enable  = 1
     })
   }
@@ -122,7 +122,7 @@ resource "yandex_compute_instance" "services_out"{
     }
     metadata = {
     user-data = templatefile("cloud-init.yml", {
-      ssh_public_key = file("~/.ssh/yc_key.pub")
+      ssh_public_key = file(var.ssh_path_pub)
     serial-port-enable  = 1
     })
   }
@@ -145,15 +145,14 @@ resource "local_file" "inventory" {
 
     [grafana]
     ${yandex_compute_instance.services_out.network_interface[0].nat_ip_address}
-    [prometheus]
-    ${yandex_compute_instance.services_in.network_interface[0].nat_ip_address}
+
     [all_services:children]
     services_in
     services_out
     webservers
 
     [all_services:vars]
-    ansible_ssh_common_args='-o ProxyCommand="ssh -o StrictHostKeyChecking=no -W %h:%p -q -i ~/.ssh/yc_key  agz@${yandex_compute_instance.bastion.network_interface[0].nat_ip_address}"'
+    ansible_ssh_common_args='-o ProxyCommand="ssh -o StrictHostKeyChecking=no -W %h:%p -q agz@${yandex_compute_instance.bastion.network_interface[0].nat_ip_address}"'
     EOF
     filename             = "../ansible/hosts.ini"
 }

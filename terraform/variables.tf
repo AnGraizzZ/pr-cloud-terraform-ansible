@@ -18,3 +18,13 @@ variable ntc {
   type        = string
   default     = "terraform-create"
 }
+
+variable ssh_path_pub {
+  type        = string
+  default     = "~/.ssh/yc_key.pub"
+}
+variable auth_key {
+  type        = string
+  default     = "~/.auth_key.json"
+}
+
